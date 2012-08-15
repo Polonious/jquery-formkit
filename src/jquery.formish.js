@@ -38,6 +38,11 @@
 							$(src) : src).formToObject());
 		},
 
+		formReset: function() {
+			this.each(function() { this.reset(); });
+			return this;
+		},
+
 		fieldToObject: function( name ) {
 			if(name){
 				return form.toObject(form.enabledElements(this, name))[name];
