@@ -1,54 +1,62 @@
 /*
- * Formish jQuery plugin
+ * Formkit jQuery plugin
  * serialize/deserialize form
- * 
- * @website https://github.com/tedliang/formish/
+ *
+ * @website https://github.com/tedliang/jquery-formkit/
  * @author: Ted Liang <tedliang[dot]email[at]gmail[dot]com>
  * @version 1.0
  *
  * Licensed under the MIT License
  */
 (function($){
-	
+
 	$.fn.extend({
 
-		formToObject: function( func ) {
-			return form.toObject(form.enabledElements(this), func);
+		extractForm: function ( options ) {
+			if(typeof options == 'string') options = { format: options };
+			else if($.isFunction(options)) options = { buildObject: options };
+
+			var settings = formkit.getSettings(options);
+			switch (settings.format.toLowerCase()) {
+				case 'array':
+					return form.toArray(form.enabledElements(this), settings.buildArray);
+				case 'query':
+					return $.param(form.toObject(form.enabledElements(this), settings.buildObject));
+				default:
+					return form.toObject(form.enabledElements(this), settings.buildObject);
+			}
 		},
 
-		formFromObject: function( obj ) {
-			return form.fromObject(form.elements(this), obj);
+		fillForm: function( data ) {
+			if ( typeof data == 'string' ) {
+				var param, data = formkit.arrayToObject($.map(data.split( "&" ), function(val){
+					param = val.split( "=" );
+					return { name: decodeURIComponent( param[0] ),
+							value: decodeURIComponent( param[1].replace( rPlus, "%20" )) };
+				}));
+			}
+			else if ( $.isArray( data ) ) {
+				data = formkit.arrayToObject(data);
+			}
+			return form.fromObject(form.elements(this), data);
 		},
 
-		formToArray: function( func ) {
-			return form.toArray(form.enabledElements(this), func);
+		copyForm: function( target ) {
+			return ((!target || typeof target == 'string') ? $(target) :
+						target).fillForm(this.extractForm());
 		},
 
-		formFromArray: function( array ) {
-			return this.formFromObject(form.arrayToObject(array));
-		},
-
-		formCopyTo: function( target ) {
-			return ((!target || typeof target == 'string') ? $(target) : 
-						target).formFromObject(this.formToObject());
-		},
-
-		formCopyFrom: function( src ) {
-			return this.formFromObject(((!src || typeof src == 'string') ? 
-							$(src) : src).formToObject());
-		},
-
-		formReset: function() {
+		resetForm: function() {
 			this.each(function() { this.reset(); });
 			return this;
 		},
 
-		fieldToObject: function( name ) {
+		extractField: function( name ) {
 			if(name){
 				return form.toObject(form.enabledElements(this, name))[name];
-			} 
+			}
 			else{
-				var ret = this.formToObject(), count = 0, attr;
+				var ret = this.extractForm(), count = 0, attr;
 				for (k in ret) if (ret.hasOwnProperty(k)) {attr=k, count++;}
 				switch (count) {
 					case 0: return undefined;
@@ -58,43 +66,77 @@
 			}
 		},
 
-		fieldFromObject: function( name, value ) {
+		fillField: function( name, value ) {
 			if (value==undefined) {
 				if (this.length==0) return $();
 				value = name;
 				name = this[0].name;
-			} 
+			}
 			var obj = {};
 			obj[name]=value;
 			return form.fromObject(form.elements(this, name), obj);
 		},
 
-	});	
-	
-	var rcheck = /^(radio|checkbox)$/i, rCRLF = /\r?\n/g, 
+	});
+
+	var formkit = {
+		settings : {
+			format: 'object',
+
+			buildObject: function(/*String*/value, /*Object*/obj){
+		        var name = this.name, val = obj[name];
+		        if(typeof val == "string"){
+		            obj[name] = [val, value];
+		        }else if($.isArray(val)){
+		            val.push(value);
+		        }else{
+		            obj[name] = value;
+		        }
+		    },
+
+		    buildArray: function(/*String*/value){
+		        return {name: this.name, value: value};
+		    },
+
+		},
+
+		getSettings: function(options){
+			options = options || {};
+			return $.extend({}, formkit.settings, options);
+		},
+
+	    arrayToObject: function(array){
+	    	var ret = {};
+	    	$.each(array, function(){
+	    		formkit.settings.buildObject.call(this, this.value, ret);
+	    	});
+	    	return ret;
+	    }
+
+	};
+
+	var rcheck = /^(radio|checkbox)$/i, rCRLF = /\r?\n/g, rPlus = /\+/g,
 		exclude = "file|submit|image|reset|button";
-	
+
 	var form = {
 		toObject: function formToObject(elems, buildObject){
-			var buildObject = $.isFunction( buildObject ) ? buildObject : form.buildObject, 
-				ret = {};
+			var ret = {};
 			elems.each(function(){
 				var value = field.toObject(this);
-				if(value !== null){					
+				if(value !== null){
 					buildObject.call(this, value, ret);
 				}
 			});
 			return ret; // Object
 		},
-		
+
 		fromObject: function formFromObject(elems, ret){
 			return elems.filter(function(){
 				return field.fromObject(this, ret[this.name]);
 			});
 		},
-		
+
 		toArray: function formToArray(elems, buildArray){
-			var buildArray = $.isFunction( buildArray ) ? buildArray : form.buildArray;
 			return elems.map(function( i, elem ){
 				var val = field.toObject(elem);
 				return val == null ?
@@ -106,7 +148,7 @@
 							buildArray.call( elem, val.replace( rCRLF, "\r\n" ) )
 			}).get();
 		},
-		
+
 		elements: function(nodes, name){
 			if(nodes.length==0) return $();
 			if(nodes[0].elements){
@@ -126,38 +168,15 @@
 				return type && exclude.indexOf(type) < 0;
 			});
 		},
-		
+
 		enabledElements: function(nodes, name){
 			return form.elements(nodes, name).filter(function(){
 				return !this.disabled;
 			});
 		},
-		
-		buildObject: function(/*String*/value, /*Object*/obj){
-	        var name = this.name, val = obj[name];
-	        if(typeof val == "string"){
-	            obj[name] = [val, value];
-	        }else if($.isArray(val)){
-	            val.push(value);
-	        }else{
-	            obj[name] = value;
-	        }
-	    },
-	    
-	    buildArray: function(/*String*/value){
-	        return {name: this.name, value: value};
-	    },
-	    
-	    arrayToObject: function(array){
-	    	var ret = {};
-	    	$.each(array, function(){
-	    		form.buildObject.call(this, this.value,ret);
-	    	});
-	    	return ret;
-	    }
 
-	};	
-	
+	};
+
 	var field = {
 		toObject: function fieldToObject(/*DOMNode*/ inputNode){
 			var ret = null;
@@ -173,10 +192,10 @@
 
 		fromObject: function fieldToObject(/*DOMNode*/ inputNode, value){
 			if(value == undefined || value === null) return;
-			
+
 			var $node = $(inputNode);
 			if(rcheck.test(inputNode.type)){
-				var prop = (inputNode.value == value || 
+				var prop = (inputNode.value == value ||
 						($.isArray(value) && $.inArray(inputNode.value, value)!=-1));
 				if($node.prop('checked')!=prop){
 					$node.prop('checked', prop);
@@ -189,7 +208,7 @@
 				}
 			}
 		},
-		
+
 	};
 
 })(jQuery);
