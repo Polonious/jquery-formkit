@@ -53,7 +53,7 @@
 
 		extractField: function( name ) {
 			if(name){
-				return form.toObject(form.enabledElements(this, name))[name];
+				return form.toObject(form.enabledElements(this, name), formkit.settings.buildObject)[name];
 			}
 			else{
 				var ret = this.extractForm(), count = 0, attr;
@@ -84,19 +84,19 @@
 			format: 'object',
 
 			buildObject: function(/*String*/value, /*Object*/obj){
-		        var name = this.name, val = obj[name];
-		        if(typeof val == "string"){
-		            obj[name] = [val, value];
-		        }else if($.isArray(val)){
-		            val.push(value);
-		        }else{
-		            obj[name] = value;
-		        }
-		    },
+				var name = this.name, val = obj[name];
+				if(typeof val == "string"){
+					obj[name] = [val, value];
+				}else if($.isArray(val)){
+					val.push(value);
+				}else{
+					obj[name] = value;
+				}
+			},
 
-		    buildArray: function(/*String*/value){
-		        return {name: this.name, value: value};
-		    },
+			buildArray: function(/*String*/value){
+				return {name: this.name, value: value};
+			},
 
 		},
 
@@ -105,13 +105,13 @@
 			return $.extend({}, formkit.settings, options);
 		},
 
-	    arrayToObject: function(array){
-	    	var ret = {};
-	    	$.each(array, function(){
-	    		formkit.settings.buildObject.call(this, this.value, ret);
-	    	});
-	    	return ret;
-	    }
+		arrayToObject: function(array){
+			var ret = {};
+			$.each(array, function(){
+				formkit.settings.buildObject.call(this, this.value, ret);
+			});
+			return ret;
+		}
 
 	};
 
