@@ -1,90 +1,83 @@
-<!doctype html>
-<html>
-	<head>
-		<title>FormKit jQuery Plug-in</title>
 
-		<link rel="stylesheet" type="text/css" href="styles.css" />
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>FormKit</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="Ted Liang">
 
-		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script>
-		<script type="text/javascript" src="../src/jquery.formkit.js" data-jquery-formkit-config="fillForm:deserialize"></script>
-		<script type="text/javascript">
-			jQuery(function($) {
-				var $form = $("#form"),
-							method,
-							methods = {
-								serializedArray: [
-									{ name: "text", value: "text" },
-									{ name: "textarea", value: "textarea" },
-									{ name: "radio", value: 1 },
-									{ name: "checkbox", value: 1 },
-									{ name: "checkbox", value: 2 },
-									{ name: "select", value: 1 },
-									{ name: "selectMultiple", value: 1 },
-									{ name: "selectMultiple", value: 2 }
-								],
-								serializedObject: {
-									text: "text",
-									textarea: "textarea",
-									radio: "2",
-									checkbox: [2,3],
-									select: 2,
-									selectMultiple: [1,2],
-								},
-								serializedString: "text=text+with+spaces&textarea=textarea&radio=2&checkbox=1&checkbox=3&select=3&selectMultiple=1&selectMultiple=2",
-								serializedStringEncoded: "text=" + encodeURIComponent( "http://google.com" ) + "&textarea=" + encodeURIComponent( "Thyme &time=again" )
-							};
+    <!-- Le styles -->
+    <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.0.4/css/bootstrap-combined.min.css" rel="stylesheet">
+    <style type="text/css">
+      body {
+        padding-top: 60px;
+        padding-bottom: 40px;
+      }
+    </style>
 
-				function clear() {
-					$form.get(0).reset();
-				}
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
 
-				$("#serializeMethod").change(function() {
-						method = methods[$("#serializeMethod").val()];
+  </head>
 
-					if (method) {
-						$("#preview").val(JSON.stringify(method));
-					} else {
-						$("#preview").val("");
-					}
-				}).change();
+  <body>
 
-				$("#deserialize").click(function() {
-					clear();
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="#">FormKit</a>
+          <div class="nav-collapse">
+            <ul class="nav">
+              <li class="active"><a href="#">Home</a></li>
+              <li><a href="#about">About</a></li>
+              <li><a href="#contact">Contact</a></li>
+            </ul>
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
 
-					$form.deserialize(method);
-				});
+    <div class="container">
 
-				$("#clear").click(clear);
-			});
-		</script>
-	</head>
-	<body>
-		<h1>jQuery FormKit Example - fillForm</h1>
+      <!-- Main hero unit for a primary marketing message or call to action -->
+      <div class="hero-unit">
+        <h1>Formkit jQuery Plugin!</h1>
+        <p></p>
+        <p><a class="btn btn-primary btn-large">Learn more &raquo;</a></p>
+      </div>
 
-		<div id="wrapper">
-			<div id="left">
-				<h2>Options</h2>
-
-				<select id="serializeMethod">
-					<option value="serializedArray" selected="selected">Serialized Array</option>
-					<option value="serializedObject">Serialized Object</option>
-					<option value="serializedString">Serialized String</option>
-					<option value="serializedStringEncoded">Serialized String (Encoded)</option>
-				</select>
-
+      <!-- Example row of columns -->
+      <div class="row">
+        <div class="span4">
+          <h2>Deserialize</h2>
+           <p>
+           		<div class="well form-inline">
+            		<select id="serializeMethod">
+						<option value="object" selected="selected">Serialized Object</option>
+						<option value="array">Serialized Array</option>
+						<option value="query">Serialized String</option>
+						<option value="queryEncoded">Serialized String (Encoded)</option>
+					</select>
+					<button id="deserialize" name="deserialize" class="btn">Fill</button>
+					<br>
+					<br>
+					<textarea id="preview" readonly class="span3" style="height: 380px;"></textarea>
+				</div>
 				<br />
-
-				<textarea id="preview" readonly></textarea>
-
-				<br />
-
-				<button id="deserialize" name="deserialize">Deserialize</button>
-				<button id="clear" name="clear">Clear</button>
-			</div>
-
-			<div id="right">
-				<h2>Result</h2>
-
+			</p>
+        </div>
+        <div class="span4">
+          <h2>Form</h2>
+           <p>
 				<form id="form" name="form">
 					<ol class="example">
 						<li>
@@ -128,8 +121,90 @@
 							</select>
 						</li>
 					</ol>
+					<button id="clear" name="clear" class="btn">Clear</button>
 				</form>
+           </p>
+       </div>
+        <div class="span4">
+          <h2>Serialize</h2>
+          <p>
+          	<div class="well form-inline">
+				<select id="extractMethod">
+					<option value="object" selected="selected">Deserialized Object</option>
+					<option value="array">Deserialized Array</option>
+					<option value="query">Deserialized String (Encoded)</option>
+				</select>
+				<button id="extract" name="extract" class="btn">Extract</button>          
+				<br />
+				<br />
+				<textarea id="extractedInfo" readonly class="span3" style="height: 380px;"></textarea>
 			</div>
-		</div>
-	</body>
+
+          </p>
+        </div>
+      </div>
+
+      <hr>
+
+      <footer>
+        <p>&copy; Polonious Pty Ltd. 2012</p>
+      </footer>
+
+    </div> <!-- /container -->
+
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script>
+    <script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.0.4/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="../src/jquery.formkit.js" data-formkit-config="fillForm:'deserialize',traditional:'ture'"></script>
+	<script type="text/javascript">
+		jQuery(function($) {
+			var $form = $("#form"), data,
+				methods = {
+					array: [
+						{ name: "text", value: "text" },
+						{ name: "textarea", value: "textarea" },
+						{ name: "radio", value: 1 },
+						{ name: "checkbox", value: 1 },
+						{ name: "checkbox", value: 2 },
+						{ name: "select", value: 1 },
+						{ name: "selectMultiple", value: 1 },
+						{ name: "selectMultiple", value: 2 }
+					],
+					object: {
+						text: "text",
+						textarea: "textarea",
+						radio: "2",
+						checkbox: [2,3],
+						select: 2,
+						selectMultiple: [1,2],
+					},
+					query: "text=text+with+spaces&textarea=textarea&radio=2&checkbox=1&checkbox=3&select=3&selectMultiple=1&selectMultiple=2",
+					queryEncoded: "text=" + encodeURIComponent( "http://google.com" ) + 
+										"&textarea=" + encodeURIComponent( "Thyme &time=again" )
+				};
+
+			$("#serializeMethod").change(function() {
+				data = methods[$("#serializeMethod").val()];
+				$("#preview").val(JSON.stringify(data, null, 2));
+			}).change();
+
+			$("#deserialize").click(function() {
+				$form.resetForm().deserialize(data);
+			});
+			
+			$("#extract").click(function() {
+				var extractMethod = $("#extractMethod").val();
+				var result = $form.extractForm(extractMethod);
+				if(extractMethod!='query') result = JSON.stringify(result, null, 2);
+				$("#extractedInfo").val(result);
+			});
+
+			$("#clear").click(function(){
+				$form.resetForm();
+			});
+		});
+	</script>
+  </body>
 </html>

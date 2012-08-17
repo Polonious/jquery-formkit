@@ -12,34 +12,35 @@
 
 	var formkit = {
 		format: 'object',
+		traditional: false,
 		extractForm: 'extractForm',
 		fillForm: 'fillForm',
 		copyForm: 'copyForm',
 		resetForm: 'resetForm',
 		extractField: 'extractField',
 		fillField: 'fillField',
-	}, configNv, configVal;
+	};
 	
-	$.each($('script[data-jquery-formkit-config]').filter(':first').attr(
-			'data-jquery-formkit-config').split(';'), function(){
-		configNv = this.split(':');
-		configVal = $.trim(configNv[1]);
-		if(configVal) formkit[$.trim(configNv[0])] = configVal;
-	});
+	var config = $('script').last().attr('data-formkit-config');
+	if( config ) $.extend(formkit, eval("({" + config + "})"));
 
 	$.fn[formkit.extractForm] = function ( options ) {
-		if(typeof options == 'string') options = { format: options };
-		else if($.isFunction(options)) options = { buildObject: options };
+		if(typeof options == 'string'){
+			options = { format: options };
+		}
+		else if($.isFunction(options)){
+			if(formkit.format=='array') options = { buildArray: options };
+			else options = { buildObject: options };
+		}
 
 		var settings = $.extend({}, defaultFn, formkit, (options || {}));
-		switch (settings.format.toLowerCase()) {
-			case 'array':
-				return form.toArray(form.enabledElements(this), settings.buildArray);
-			case 'query':
-				return $.param(form.toObject(form.enabledElements(this), settings.buildObject));
-			default:
-				return form.toObject(form.enabledElements(this), settings.buildObject);
+		
+		if(settings.format=='array'){
+			return form.toArray(form.enabledElements(this), settings.buildArray);
 		}
+		
+		var obj = form.toObject(form.enabledElements(this), settings.buildObject);
+		return (settings.format=='query')? $.param(obj, settings.traditional) : obj;
 	};
 
 	$.fn[formkit.fillForm] = function( data ) {
