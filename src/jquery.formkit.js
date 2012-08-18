@@ -18,7 +18,7 @@
 		copyForm: 'copyForm',
 		resetForm: 'resetForm',
 		extractField: 'extractField',
-		fillField: 'fillField',
+		fillField: 'fillField'
 	};
 	
 	var config = $('script').last().attr('data-formkit-config');
@@ -107,7 +107,7 @@
 		},
 		buildArray: function(/*String*/value){
 			return {name: this.name, value: value};
-		},
+		}
 	};
 
 	var arrayToObject = function(array){
@@ -176,7 +176,7 @@
 			return form.elements(nodes, name).filter(function(){
 				return !this.disabled;
 			});
-		},
+		}
 
 	};
 
@@ -212,7 +212,7 @@
 					return true;
 				}
 			}
-		},
+		}
 
 	};
 
