@@ -20,8 +20,8 @@
 		extractField: 'extractField',
 		fillField: 'fillField'
 	};
-	
-	var config = $('script').last().attr('data-formkit-config');
+
+	var config = $('script[data-formkit-config]').first().attr('data-formkit-config');
 	if( config ) $.extend(formkit, eval("({" + config + "})"));
 
 	$.fn[formkit.extractForm] = function ( options ) {
@@ -34,11 +34,11 @@
 		}
 
 		var settings = $.extend({}, defaultFn, formkit, (options || {}));
-		
+
 		if(settings.format=='array'){
 			return form.toArray(form.enabledElements(this), settings.buildArray);
 		}
-		
+
 		var obj = form.toObject(form.enabledElements(this), settings.buildObject);
 		return (settings.format=='query')? $.param(obj, settings.traditional) : obj;
 	};
@@ -199,7 +199,7 @@
 			var $node = $(inputNode);
 			if(rcheck.test(inputNode.type)){
 				var prop = (inputNode.value == value ||
-							($.isArray(value) && 
+							($.isArray(value) &&
 							($.inArray(inputNode.value, value)!=-1 ||
 							$.inArray(parseFloat(inputNode.value), value)!=-1)));
 				if($node.prop('checked')!=prop){
