@@ -4,7 +4,7 @@
  *
  * @website https://github.com/tedliang/jquery-formkit/
  * @author: Ted Liang <tedliang[dot]email[at]gmail[dot]com>
- * @version 1.0
+ * @version 1.1
  *
  * Licensed under the MIT License
  */
