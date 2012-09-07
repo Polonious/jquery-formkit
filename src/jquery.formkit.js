@@ -13,6 +13,7 @@
 	var formkit = {
 		format: 'object',
 		traditional: false,
+		ignore: ':submit, :reset, :image, :file',
 		extractForm: 'extractForm',
 		fillForm: 'fillForm',
 		copyForm: 'copyForm',
@@ -90,7 +91,7 @@
 		}
 		var obj = {};
 		obj[name]=value;
-		return form.fromObject(form.elements(this, name), obj);
+		return form.fromObject(form.elements(this, false, name), obj);
 	};
 
 	var	defaultFn = {
@@ -118,8 +119,7 @@
 		return ret;
 	};
 
-	var rcheck = /^(radio|checkbox)$/i, rCRLF = /\r?\n/g, rPlus = /\+/g,
-		exclude = "file|submit|image|reset|button";
+	var rcheck = /^(radio|checkbox)$/i, rCRLF = /\r?\n/g, rPlus = /\+/g;
 
 	var form = {
 		toObject: function formToObject(elems, buildObject){
@@ -152,30 +152,25 @@
 			}).get();
 		},
 
-		elements: function(nodes, name){
-			if(nodes.length==0) return $();
+		elements: function(nodes, ignoreDisabled, name){
+			if(nodes.length==0) return $([]);
+			var filter = ":input[name"+(name?"='"+name+"'":"")+"]";
 			if(nodes[0].elements){
-				nodes = $(nodes[0].elements).filter(':input');
+				nodes = $($.makeArray(nodes[0].elements)).filter(filter);
 			}
 			else{
 				nodes = nodes.map(function(){
 					var $this = $(this);
-					if($this.is(':input')) return this;
-					else return $this.find(':input').get();
+					if($this.is(filter)) return this;
+					else return $this.find(filter).get();
 				});
 			}
-			return nodes.filter(function(){
-				if(!this.name) return false;
-				if(name && this.name!=name) return false;
-				var type = (this.type || "").toLowerCase();
-				return type && exclude.indexOf(type) < 0;
-			});
+			if(ignoreDisabled) nodes = nodes.not("[disabled]");
+			return nodes.not(formkit.ignore);
 		},
 
 		enabledElements: function(nodes, name){
-			return form.elements(nodes, name).filter(function(){
-				return !this.disabled;
-			});
+			return form.elements(nodes, true, name);
 		}
 
 	};
