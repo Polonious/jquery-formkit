@@ -2,7 +2,7 @@
  * Formkit jQuery plugin
  * serialize/deserialize form
  *
- * @website https://github.com/tedliang/jquery-formkit/
+ * @website https://github.com/Polonious/jquery-formkit/
  * @author: Ted Liang <tedliang[dot]email[at]gmail[dot]com>
  * @version 1.1
  *
